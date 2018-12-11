@@ -186,6 +186,7 @@ class CephHooksTestCase(unittest.TestCase):
         mocks["apt_install"].assert_called_once_with(
             ["python-dbus", "lockfile-progs"])
 
+    @patch.object(ceph_hooks, 'service_pause')
     @patch.object(ceph_hooks, 'ceph')
     @patch.object(ceph_hooks, 'notify_client')
     @patch.object(ceph_hooks, 'config')
@@ -193,7 +194,8 @@ class CephHooksTestCase(unittest.TestCase):
             self,
             mock_config,
             mock_notify_client,
-            mock_ceph):
+            mock_ceph,
+            mock_service_pause):
         config = copy.deepcopy(CHARM_CONFIG)
         mock_config.side_effect = lambda key: config[key]
         with patch.multiple(
@@ -213,6 +215,7 @@ class CephHooksTestCase(unittest.TestCase):
             ["python-dbus", "lockfile-progs"])
         mock_notify_client.assert_called_once_with()
         mock_ceph.update_monfs.assert_called_once_with()
+        mock_service_pause.assert_called_with('ceph-create-keys')
 
 
 class RelatedUnitsTestCase(unittest.TestCase):
